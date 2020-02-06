@@ -1,36 +1,58 @@
 import React, { Component } from 'react';
-
-import logo from '../logo.svg';
-import '../App.css';
-
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom'
 
 import { fetchUsers } from '../ducks/users'
 
 class LoginPage extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      avatarPreview: '', 
+    }
+  }
+
   componentDidMount() {
     return this.props.fetch();
   }
 
-  render(props) {
-    console.log(props);
+  render() {
+    const { users: available } = this.props;
+    // console.log(props);
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
+      <div className="LoginPage">
+        <div className="card">
+          <div className="card-header">
+            Welcome to would-you-rather
+          </div>
+
+          <div className="card-content">
+            <div className="fake-avatar">
+
+            </div>
+
+            <div className="user-selector">
+              <select>
+                {
+                  available.map((user, i) => {
+                    return (
+                      <option key={`user-${i}`}>
+                        { user.name }
+                      </option>
+                    );
+                  })
+                }
+              </select>
+            </div>
+
+          </div>
+
+          <div className="card-footer">
+            <a href="#" className="btn btn-primary btn--full">
+              ENTRAR
+            </a>
+          </div>
+        </div>
       </div>
     );
   }
@@ -40,14 +62,11 @@ const mapDispatchToProps = (dispatch) => ({
   fetch() {
     return dispatch(fetchUsers())
   }
-})
+});
 
-const mapStateToProps = ({ users }) => {
-  console.log(users);
-  return ({
-    users: (users.users || []),
-  })
-}
+const mapStateToProps = ({ users }) => ({
+  users: (users.users || []),
+});
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(LoginPage));
 
