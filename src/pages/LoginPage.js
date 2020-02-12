@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom'
 
-import { fetchUsers } from '../ducks/users'
+import { fetchUsers, login } from '../ducks/users'
 
 class LoginPage extends Component {
   constructor(props) {
@@ -10,14 +10,37 @@ class LoginPage extends Component {
     this.state = {
       avatarPreview: '', 
     }
+
+    this.handleAvatarPreview = this.handleAvatarPreview.bind(this);
+    this.handleLogin = this.handleLogin.bind(this);
   }
 
   componentDidMount() {
     return this.props.fetch();
   }
 
+  handleLogin(evt) {
+    const { target: { value } } = evt;
+    const { login, users } = this.props;
+    const targetUser = users[value];
+    return targetUser && login(targetUser);
+  }
+
+  handleAvatarPreview(evt) {
+    const { target } = evt;
+    if (target) {
+      const { selectedIndex } = target;
+      const label = target[selectedIndex].text;
+      const initials = (label.split(" ").map((n) => n[0]) || '');
+      return this.setState({ avatarPreview: initials });
+    }
+  }
+
   render() {
-    const { users: available } = this.props;
+    const {
+      users: available,
+    } = this.props;
+    const { avatarPreview } = this.state;
     // console.log(props);
     return (
       <div className="LoginPage">
@@ -28,15 +51,15 @@ class LoginPage extends Component {
 
           <div className="card-content">
             <div className="fake-avatar">
-
+              { avatarPreview }
             </div>
 
             <div className="user-selector">
-              <select>
+              <select onChange={this.handleAvatarPreview}>
                 {
-                  available.map((user, i) => {
+                  available.map((user) => {
                     return (
-                      <option key={`user-${i}`}>
+                      <option value={user.id} key={`user-${user.id}`}>
                         { user.name }
                       </option>
                     );
@@ -48,9 +71,11 @@ class LoginPage extends Component {
           </div>
 
           <div className="card-footer">
-            <a href="#" className="btn btn-primary btn--full">
+            <button
+              onClick={this.handleLogin}
+              className="btn btn-primary btn--full">
               ENTRAR
-            </a>
+            </button>
           </div>
         </div>
       </div>
@@ -61,6 +86,9 @@ class LoginPage extends Component {
 const mapDispatchToProps = (dispatch) => ({
   fetch() {
     return dispatch(fetchUsers())
+  },
+  login(user) {
+    return dispatch(login(user))
   }
 });
 
